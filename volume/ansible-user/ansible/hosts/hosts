@@ -1,0 +1,11 @@
+# Rev.2022.01.07
+
+# ＜グループ設定＞
+
+# 鍵認証でapp-userにssh接続するサーバーグループ
+[app-users:children]
+# ※宣言しておかないとvars設定不可
+
+[app-users:vars]
+ansible_user=app-user
+ansible_ssh_private_key_file=/home/ansible-user/.ssh/id_rsa

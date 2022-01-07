@@ -1,0 +1,14 @@
+# Rev.2022.01.07
+
+# ＜ホスト設定＞
+test-ansible_client_1
+
+
+# ＜グループ設定＞
+# 鍵認証でapp-userにssh接続するサーバーグループ
+[linux_app-users:children]
+test-ansible_client
+
+# clientサーバーグループ
+[test-ansible_client]
+test-ansible_client_1

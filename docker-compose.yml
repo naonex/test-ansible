@@ -1,0 +1,63 @@
+version: "3"
+services:
+  server:
+    build:
+      context: ./file/ansible-centos7
+      dockerfile: Dockerfile
+    #  # ビルド中にプロキシを使うための設定
+    #  args:
+    #    - http_proxy=$http_proxy
+    #    - https_proxy=$https_proxy
+    ## 立ち上がったコンテナでプロキシを使うための設定
+    #environment:
+    #  - http_proxy=$http_proxy
+    #  - https_proxy=$https_proxy
+    volumes:
+      # ansibleファイル操作用
+      # ※ホームディレクトリごとマウントしないこと。鍵設定が無効になります
+      - .\volume\ansible-user\ansible:/home/ansible-user/ansible
+      # jenkins設定永続化＆ジョブ定義ファイル操作用（初期化したい時は削除）
+      - .\volume\jenkins:/var/lib/jenkins
+    # `ローカルのポート`:`コンテナのポート`
+    ports:
+      # jenkins用
+      - "8081:8080"
+      # ssh用
+      - "10022:22"
+    # 権限の有効化（systemctl使用するため）
+    privileged: true
+    # ※"/sbin/init"はsystemctl使用するため
+    command: >
+      bash -c "
+        systemctl start jenkins
+        systemctl start sshd
+        /sbin/init
+      "
+    # ※entrypoint,command未設定なら"tty: true"のみでコンテナ常駐起動可能
+    #tty: true
+    networks:
+      - default
+  client:
+    build: 
+      context: ./file/app-centos7
+      dockerfile: Dockerfile
+    #  # ビルド中にプロキシを使うための設定
+    #  args:
+    #    - http_proxy=$http_proxy
+    #    - https_proxy=$https_proxy
+    ## 立ち上がったコンテナでプロキシを使うための設定
+    #environment:
+    #  - http_proxy=$http_proxy
+    #  - https_proxy=$https_proxy
+    # 権限の有効化（systemctl使用するため）
+    privileged: true
+    # ※"/sbin/init"はsystemctl使用するため
+    command: >
+      bash -c "
+        systemctl start sshd
+        /sbin/init
+      "
+    # ※entrypoint,command未設定なら"tty: true"のみでコンテナ常駐起動可能
+    #tty: true
+    networks:
+      - default
